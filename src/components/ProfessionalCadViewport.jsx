@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows, Environment, Grid, Lightformer, OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { syncGeometries } from 'replicad-threejs-helper'
 import { ACESFilmicToneMapping, Color, PCFSoftShadowMap, SRGBColorSpace } from 'three'
@@ -45,9 +45,29 @@ function CadAssembly({ model, selectedPartId, onSelectPart, renderMode }) {
   </group>
 }
 
-const ViewportScene = forwardRef(function ViewportScene({ model, selectedPartId, jointAngles, onSelectPart, renderMode, assemblyMode, onModelReady, onModelError }, ref) {
+const ViewportScene = forwardRef(function ViewportScene({ model, selectedPartId, jointAngles, onSelectPart, renderMode, assemblyMode, onModelReady, onModelError, onTelemetry }, ref) {
   const { gl, camera, scene, size } = useThree()
   const controls = useRef(null)
+  const telemetry = useRef(null)
+  const lastTelemetryAt = useRef(0)
+
+  const readCamera = () => ({
+    camera: camera.position.toArray().map(value => Number(value.toFixed(4))),
+    target: (controls.current?.target?.toArray() || [0, 0.82, 0]).map(value => Number(value.toFixed(4))),
+    selectedPart: selectedPartId,
+    renderMode,
+    assemblyMode,
+    viewport: [size.width, size.height],
+    timestamp: Date.now(),
+  })
+
+  useFrame(({ clock }) => {
+    if (clock.elapsedTime - lastTelemetryAt.current < 0.5) return
+    lastTelemetryAt.current = clock.elapsedTime
+    telemetry.current = readCamera()
+    window.__MUNONOID_VIEWPORT__ = telemetry.current
+    onTelemetry?.(telemetry.current)
+  })
 
   useEffect(() => {
     const detail = assemblyMode === 'detail'
@@ -58,6 +78,7 @@ const ViewportScene = forwardRef(function ViewportScene({ model, selectedPartId,
   }, [assemblyMode, camera])
 
   useImperativeHandle(ref, () => ({
+    getCameraData() { return telemetry.current || readCamera() },
     setView(view) {
       const positions = { perspective: [2.45, 1.85, 2.65], front: [0, 0.86, 3.4], right: [3.4, 0.86, 0], top: [0, 4.1, 0.01] }
       camera.position.set(...(positions[view] || positions.perspective))
@@ -119,7 +140,7 @@ const ViewportScene = forwardRef(function ViewportScene({ model, selectedPartId,
   </>
 })
 
-const ProfessionalCadViewport = forwardRef(function ProfessionalCadViewport({ model, selectedPartId, jointAngles, onSelectPart, renderMode = 'realistic', assemblyMode = 'detail', onModelReady, onModelError }, ref) {
+const ProfessionalCadViewport = forwardRef(function ProfessionalCadViewport({ model, selectedPartId, jointAngles, onSelectPart, renderMode = 'realistic', assemblyMode = 'detail', onModelReady, onModelError, onTelemetry }, ref) {
   const [webglAvailable] = useState(() => {
     try {
       const canvas = document.createElement('canvas')
@@ -139,7 +160,7 @@ const ProfessionalCadViewport = forwardRef(function ProfessionalCadViewport({ mo
 
   return <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping, outputColorSpace: SRGBColorSpace, shadowMap: { enabled: true, type: PCFSoftShadowMap } }} onCreated={({ gl }) => { gl.setClearColor(new Color('#0d1216'), 1); gl.toneMappingExposure = 1.08 }} onPointerMissed={() => onSelectPart(null)}>
     <color attach="background" args={['#0d1216']}/><fog attach="fog" args={['#0d1216', 4.5, 9]}/>
-    <ViewportScene ref={ref} model={model} selectedPartId={selectedPartId} jointAngles={jointAngles} onSelectPart={onSelectPart} renderMode={renderMode} assemblyMode={assemblyMode} onModelReady={onModelReady} onModelError={onModelError}/>
+    <ViewportScene ref={ref} model={model} selectedPartId={selectedPartId} jointAngles={jointAngles} onSelectPart={onSelectPart} renderMode={renderMode} assemblyMode={assemblyMode} onModelReady={onModelReady} onModelError={onModelError} onTelemetry={onTelemetry}/>
   </Canvas>
 })
 

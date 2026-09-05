@@ -191,6 +191,7 @@ export default function App() {
   const [selectedCadPart, setSelectedCadPart] = useState('right_shoulder_roll')
   const [robotInfo, setRobotInfo] = useState(null)
   const [jointAngles, setJointAngles] = useState({})
+  const [cameraData, setCameraData] = useState(null)
   const [selectedComponent, setSelectedComponent] = useState(projectState.robot.selectedComponent)
   const [query, setQuery] = useState('')
   const [notice, setNotice] = useState('')
@@ -222,6 +223,16 @@ export default function App() {
     return () => window.clearTimeout(timer)
   }, [cadParameters])
   useEffect(() => localStorage.setItem('munonoid-cad-parameters', JSON.stringify(cadParameters)), [cadParameters])
+  useEffect(() => {
+    window.__MUNONOID_DASHBOARD__ = {
+      camera: cameraData,
+      robot: robotInfo ? { links: robotInfo.links, meshes: robotInfo.meshes, heightM: robotInfo.heightM, bounds: robotInfo.bounds } : null,
+      selectedPart: selectedCadPart,
+      jointAngles,
+      cadStatus,
+      cadError,
+    }
+  }, [cameraData, robotInfo, selectedCadPart, jointAngles, cadStatus, cadError])
   const selectComponent = (componentId) => {
     setSelectedComponent(componentId)
     if (componentId !== 'rightShoulder') action(`${labels[componentId]} staat in de CAD-planning; de rechter schouder is nu actief.`)
@@ -320,9 +331,15 @@ export default function App() {
         <strong>{cadStatus}</strong>
       </div>
       <div className="viewport-hud"><strong>{assemblyMode === 'detail' ? 'Schouder- en bovenlichaamdetail' : 'Complete Berkeley Lite V2 basisassemblage'}</strong><span>73 Onshape CAD-meshes · 72 DOF · RobStride-aandrijving · originele schaal</span></div>
+      <output className="camera-telemetry" data-testid="viewport-telemetry" aria-label="Live 3D-cameradata">
+        <strong>LIVE CAMERA DATA</strong>
+        <span>POS {cameraData?.camera?.map(value => value.toFixed(2)).join(' · ') || '—'}</span>
+        <span>TARGET {cameraData?.target?.map(value => value.toFixed(2)).join(' · ') || '—'}</span>
+        <span>MODEL {robotInfo ? `${robotInfo.links} links · ${robotInfo.heightM.toFixed(3)} m` : 'laden…'}</span>
+      </output>
       <Suspense fallback={<div className="viewport-loading">3D-model laden…</div>}>
         <ProfessionalCadViewport ref={viewportRef} model={cadModel} selectedPartId={selectedCadPart} jointAngles={jointAngles} onSelectPart={setSelectedCadPart} renderMode={renderMode} assemblyMode={assemblyMode}
-          onModelReady={(info) => { setRobotInfo(info); setCadStatus(`${info.links} echte links · ${info.meshes} CAD-meshes geladen`) }} onModelError={(error) => setCadError(error.message)}/>
+          onModelReady={(info) => { setRobotInfo(info); setCadStatus(`${info.links} echte links · ${info.meshes} CAD-meshes geladen`) }} onModelError={(error) => setCadError(error.message)} onTelemetry={setCameraData}/>
       </Suspense>
       <div className="assembly-view-switch"><button className={assemblyMode === 'detail' ? 'active' : ''} onClick={() => setAssemblyMode('detail')}>Schouderdetail</button><button className={assemblyMode === 'full' ? 'active' : ''} onClick={() => setAssemblyMode('full')}>Volledige robot</button></div>
       <div className="command-bar"><Cpu size={17}/><input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>e.key==='Enter'&&executeCommand()} placeholder="Codex bestuurt deze assemblage — geef een engineeringopdracht"/><button onClick={executeCommand}>Door Codex uitvoeren</button></div>

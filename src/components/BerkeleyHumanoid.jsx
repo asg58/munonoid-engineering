@@ -12,7 +12,8 @@ function vector(value, fallback = [0, 0, 0]) {
 function applyOrigin(object, origin) {
   if (!origin) return
   object.position.fromArray(vector(origin.getAttribute('xyz')))
-  object.rotation.copy(new Euler(...vector(origin.getAttribute('rpy')), 'XYZ'))
+  // URDF uses fixed-axis roll, pitch, yaw: Rz(yaw) * Ry(pitch) * Rx(roll).
+  object.rotation.copy(new Euler(...vector(origin.getAttribute('rpy')), 'ZYX'))
 }
 
 function finishFor(linkName) {
@@ -124,12 +125,18 @@ export default function BerkeleyHumanoid({ selectedPartId, jointAngles = {}, onS
       const center = bounds.getCenter(new Vector3())
       modelRoot.position.set(-center.x, -bounds.min.y, -center.z)
       modelRoot.updateMatrixWorld(true)
+      const positionedBounds = new Box3().setFromObject(modelRoot)
       if (!cancelled) onReady?.({
         links: links.size,
         meshes: meshes.current.length,
         joints,
         parts: [...linkMetadata.values()],
-        heightM: bounds.max.y - bounds.min.y,
+        heightM: positionedBounds.max.y - positionedBounds.min.y,
+        bounds: {
+          min: positionedBounds.min.toArray(),
+          max: positionedBounds.max.toArray(),
+          center: positionedBounds.getCenter(new Vector3()).toArray(),
+        },
       })
     }
 

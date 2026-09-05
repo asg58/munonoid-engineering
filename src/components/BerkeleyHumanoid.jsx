@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Box3, Color, Euler, Group, Mesh, MeshPhysicalMaterial, Vector3 } from 'three'
+import { Box3, Color, Euler, Group, Mesh, MeshPhysicalMaterial, Quaternion, Vector3 } from 'three'
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
 
 const MODEL_ROOT = '/models/berkeley-lite'
@@ -25,9 +25,10 @@ function finishFor(linkName) {
   return { color: '#aab4b9', metalness: 0.9, roughness: 0.19, clearcoat: 0.54 }
 }
 
-export default function BerkeleyHumanoid({ selectedPartId, onSelectPart, onReady, onError }) {
+export default function BerkeleyHumanoid({ selectedPartId, jointAngles = {}, onSelectPart, onReady, onError }) {
   const mount = useRef(null)
   const meshes = useRef([])
+  const jointNodes = useRef(new Map())
 
   useEffect(() => {
     let cancelled = false
@@ -45,12 +46,18 @@ export default function BerkeleyHumanoid({ selectedPartId, onSelectPart, onReady
       if (xml.querySelector('parsererror')) throw new Error('URDF kon niet worden gelezen')
 
       const links = new Map()
+      const linkMetadata = new Map()
       const meshTasks = []
       for (const link of xml.querySelectorAll('robot > link')) {
         const linkName = link.getAttribute('name')
         const linkGroup = new Group()
         linkGroup.name = linkName
         links.set(linkName, linkGroup)
+        linkMetadata.set(linkName, {
+          id: linkName,
+          mass: Number(link.querySelector(':scope > inertial > mass')?.getAttribute('value') || 0),
+          mesh: null,
+        })
 
         for (const visual of link.querySelectorAll(':scope > visual')) {
           const meshNode = visual.querySelector('geometry > mesh')
@@ -59,19 +66,36 @@ export default function BerkeleyHumanoid({ selectedPartId, onSelectPart, onReady
           applyOrigin(visualGroup, visual.querySelector(':scope > origin'))
           linkGroup.add(visualGroup)
 
-          meshTasks.push({ linkName, visualGroup, filename: meshNode.getAttribute('filename').split('/').pop() })
+          const filename = meshNode.getAttribute('filename').split('/').pop()
+          linkMetadata.get(linkName).mesh = filename
+          meshTasks.push({ linkName, visualGroup, filename })
         }
       }
 
       const childLinks = new Set()
+      const joints = []
       for (const joint of xml.querySelectorAll('robot > joint')) {
         const parentName = joint.querySelector('parent')?.getAttribute('link')
         const childName = joint.querySelector('child')?.getAttribute('link')
         const parent = links.get(parentName)
         const child = links.get(childName)
         if (!parent || !child) continue
-        applyOrigin(child, joint.querySelector(':scope > origin'))
-        parent.add(child)
+        const pivot = new Group()
+        pivot.name = joint.getAttribute('name')
+        applyOrigin(pivot, joint.querySelector(':scope > origin'))
+        pivot.userData.baseQuaternion = pivot.quaternion.clone()
+        const axis = vector(joint.querySelector(':scope > axis')?.getAttribute('xyz'), [0, 0, 1])
+        const limit = joint.querySelector(':scope > limit')
+        const metadata = {
+          name: joint.getAttribute('name'), child: childName, parent: parentName, axis,
+          lower: Number(limit?.getAttribute('lower') || 0),
+          upper: Number(limit?.getAttribute('upper') || 0),
+          effort: Number(limit?.getAttribute('effort') || 0),
+        }
+        joints.push(metadata)
+        jointNodes.current.set(childName, { pivot, ...metadata })
+        pivot.add(child)
+        parent.add(pivot)
         childLinks.add(childName)
       }
 
@@ -100,7 +124,13 @@ export default function BerkeleyHumanoid({ selectedPartId, onSelectPart, onReady
       const center = bounds.getCenter(new Vector3())
       modelRoot.position.set(-center.x, -bounds.min.y, -center.z)
       modelRoot.updateMatrixWorld(true)
-      if (!cancelled) onReady?.({ links: links.size, meshes: meshes.current.length, heightM: bounds.max.y - bounds.min.y })
+      if (!cancelled) onReady?.({
+        links: links.size,
+        meshes: meshes.current.length,
+        joints,
+        parts: [...linkMetadata.values()],
+        heightM: bounds.max.y - bounds.min.y,
+      })
     }
 
     load().catch(error => { if (!cancelled) onError?.(error) })
@@ -110,8 +140,18 @@ export default function BerkeleyHumanoid({ selectedPartId, onSelectPart, onReady
       geometries.forEach(item => item.dispose())
       materials.forEach(item => item.dispose())
       meshes.current = []
+      jointNodes.current.clear()
     }
   }, [])
+
+  useEffect(() => {
+    const delta = new Quaternion()
+    for (const [id, node] of jointNodes.current) {
+      const angle = jointAngles[id] || 0
+      delta.setFromAxisAngle(new Vector3(...node.axis).normalize(), angle)
+      node.pivot.quaternion.copy(node.pivot.userData.baseQuaternion).multiply(delta)
+    }
+  }, [jointAngles])
 
   useEffect(() => {
     for (const mesh of meshes.current) {

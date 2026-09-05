@@ -30,22 +30,36 @@ const modeItems = [
   [ShieldCheck, 'Validatie'], [Grid3X3, 'BOM'], [FileText, 'Documenten'], [Settings, 'Instellingen'],
 ]
 
+const titleForPart = (id = '') => id.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+const fingerLinks = side => Array.from({ length: 5 }, (_, finger) =>
+  Array.from({ length: 4 }, (_, joint) => `${side}_finger${finger + 1}_j${joint + 1}`)).flat()
+const cadAssembly = [
+  { id: 'body', label: 'Centraal frame', children: ['pelvis', 'chest'] },
+  { id: 'head-cad', label: 'Hoofd & nek', children: ['neck_yaw', 'neck_roll', 'head'] },
+  { id: 'left-arm-cad', label: 'Linkerarm', children: ['left_shoulder_pitch', 'left_shoulder_roll', 'left_shoulder_yaw', 'left_elbow_pitch', 'left_wrist_yaw', 'left_wrist_roll', 'left_hand'] },
+  { id: 'right-arm-cad', label: 'Rechterarm', children: ['right_shoulder_pitch', 'right_shoulder_roll', 'right_shoulder_yaw', 'right_elbow_pitch', 'right_wrist_yaw', 'right_wrist_roll', 'right_hand'] },
+  { id: 'left-leg-cad', label: 'Linkerbeen', children: ['left_hip_pitch', 'left_hip_roll', 'left_hip_yaw', 'left_knee_pitch', 'left_ankle_yaw', 'left_ankle_pitch', 'left_foot'] },
+  { id: 'right-leg-cad', label: 'Rechterbeen', children: ['right_hip_pitch', 'right_hip_roll', 'right_hip_yaw', 'right_knee_pitch', 'right_ankle_yaw', 'right_ankle_pitch', 'right_foot'] },
+  { id: 'left-hand-cad', label: 'Linkerhand · 20 DOF', children: fingerLinks('left') },
+  { id: 'right-hand-cad', label: 'Rechterhand · 20 DOF', children: fingerLinks('right') },
+]
+
 function IconButton({ children, label, active = false, onClick }) {
   return <button className={`icon-button ${active ? 'active' : ''}`} title={label} onClick={onClick}>{children}</button>
 }
 
 function AssemblyTree({ selected, onSelect }) {
-  const [open, setOpen] = useState(() => Object.fromEntries(assembly.map(x => [x.id, true])))
+  const [open, setOpen] = useState(() => Object.fromEntries(cadAssembly.map((x, index) => [x.id, index < 6])))
   return <div className="tree">
-    <div className="root-row"><ChevronDown size={14}/><Boxes size={15}/><strong>Munonoid Engineering CAD</strong></div>
-    {assembly.map(group => <div key={group.id}>
-      <button className={`tree-row ${selected === group.id ? 'selected' : ''}`} onClick={() => onSelect(group.id)}>
-        <span onClick={(e) => { e.stopPropagation(); setOpen(v => ({...v, [group.id]: !v[group.id]})) }}>{open[group.id] ? <ChevronDown size={13}/> : <ChevronRight size={13}/>}</span>
+    <div className="root-row"><ChevronDown size={14}/><Boxes size={15}/><strong>Berkeley Lite V2 · 73 links</strong></div>
+    {cadAssembly.map(group => <div key={group.id}>
+      <button className="tree-row" onClick={() => setOpen(v => ({...v, [group.id]: !v[group.id]}))}>
+        <span>{open[group.id] ? <ChevronDown size={13}/> : <ChevronRight size={13}/>}</span>
         <Folder size={14}/><span>{group.label}</span>
       </button>
-      {open[group.id] && group.children.map((child, index) =>
-        <button key={child} className={`tree-row child ${selected === group.id && index === 0 ? 'child-focus' : ''}`} onClick={() => onSelect(group.id)}>
-          <span/><Box size={13}/><span>{child}</span>
+      {open[group.id] && group.children.map(child =>
+        <button key={child} className={`tree-row child ${selected === child ? 'selected' : ''}`} onClick={() => onSelect(child)}>
+          <span/><Box size={13}/><span>{titleForPart(child)}</span>
         </button>
       )}
     </div>)}
@@ -56,8 +70,13 @@ function PropertyField({ label, value, unit, onChange, type = 'number' }) {
   return <label className={`property-row ${!onChange ? 'locked' : ''}`}><span>{label}</span><div className="field-wrap"><input type={type} value={value} readOnly={!onChange} onChange={e => onChange?.(e.target.value)} /><em>{unit}</em></div></label>
 }
 
-function CadInspector({ selectedPartId, parameters, onParameter, status, error, renderMode, onRenderMode, onRender8K, rendering8K }) {
-  const [activeTab, setActiveTab] = useState('properties')
+function CadInspector({ selectedPartId, robotInfo, jointAngles, onJointAngle, parameters, onParameter, status, error, renderMode, onRenderMode, onRender8K, rendering8K }) {
+  const [activeTab, setActiveTab] = useState('component')
+  const part = robotInfo?.parts?.find(item => item.id === selectedPartId)
+  const joint = robotInfo?.joints?.find(item => item.child === selectedPartId)
+  const angleDegrees = Math.round(((jointAngles[selectedPartId] || 0) * 180) / Math.PI)
+  const lowerDegrees = Math.round(((joint?.lower || 0) * 180) / Math.PI)
+  const upperDegrees = Math.round(((joint?.upper || 0) * 180) / Math.PI)
   const fields = [
     ['plateWidth', 'Plaatbreedte'], ['plateHeight', 'Plaathoogte'], ['plateThickness', 'Plaatdikte'],
     ['bore', 'Centrale boring'], ['bearingOuter', 'Lager buiten-Ø'], ['bearingInner', 'Lager binnen-Ø'],
@@ -65,10 +84,26 @@ function CadInspector({ selectedPartId, parameters, onParameter, status, error, 
     ['shaftDiameter', 'Asdiameter'], ['capstanDiameter', 'Capstan buiten-Ø'], ['capstanWidth', 'Capstanbreedte'],
   ]
   return <aside className="inspector panel">
-    <div className="panel-title"><span>Parametrische CAD</span><SlidersHorizontal size={15}/></div>
-    <div className="inspector-head"><h2>{selectedPartId || 'Rechter schoudermodule'}</h2><span className="part-code">B-REP · OPENCASCADE · MM</span></div>
-    <div className="tabs">{[['properties', 'Eigenschappen'], ['materials', 'Materialen'], ['render', 'Render']].map(([id, label]) =>
+    <div className="panel-title"><span>Engineering-inspector</span><SlidersHorizontal size={15}/></div>
+    <div className="inspector-head"><h2>{titleForPart(selectedPartId || 'pelvis')}</h2><span className="part-code">BERKELEY LITE V2 · ONSHAPE CAD · 1:1</span></div>
+    <div className="tabs">{[['component', 'Onderdeel'], ['properties', 'Schouder-CAD'], ['materials', 'Materiaal'], ['render', 'Render']].map(([id, label]) =>
       <button key={id} className={activeTab === id ? 'active' : ''} onClick={() => setActiveTab(id)}>{label}</button>)}</div>
+    {activeTab === 'component' && <section className="component-data">
+      <div className="metric-strip"><span><b>{part?.mass?.toFixed(3) || '—'}</b> kg</span><span><b>{part?.mesh ? 'STL' : '—'}</b> CAD</span><span><b>{joint ? '1' : '0'}</b> DOF</span></div>
+      <dl>
+        <div><dt>Link-ID</dt><dd>{selectedPartId || '—'}</dd></div>
+        <div><dt>CAD-bron</dt><dd>Onshape robot-assets</dd></div>
+        <div><dt>Mesh</dt><dd>{part?.mesh || 'wordt geladen'}</dd></div>
+        <div><dt>Ouderlink</dt><dd>{joint?.parent || 'wereldframe'}</dd></div>
+        <div><dt>Gewricht</dt><dd>{joint?.name || 'vast basisdeel'}</dd></div>
+        <div><dt>Max. koppel</dt><dd>{joint ? `${joint.effort.toFixed(1)} Nm` : '—'}</dd></div>
+      </dl>
+      {joint && <div className="joint-control">
+        <div><strong>Live gewrichtshoek</strong><output>{angleDegrees}°</output></div>
+        <input type="range" min={lowerDegrees} max={upperDegrees} step="1" value={angleDegrees} onChange={event => onJointAngle(selectedPartId, Number(event.target.value) * Math.PI / 180)}/>
+        <div className="range-limits"><span>{lowerDegrees}°</span><button onClick={() => onJointAngle(selectedPartId, 0)}>Nulstand</button><span>{upperDegrees}°</span></div>
+      </div>}
+    </section>}
     {activeTab === 'properties' && <section className="property-section"><h3>Exacte geometrie</h3>
       {fields.map(([key, label, locked]) => <PropertyField key={key} label={label} value={parameters[key]} unit="mm" onChange={locked ? null : value => onParameter(key, value)}/>)}
     </section>}
@@ -154,6 +189,8 @@ export default function App() {
   const [cadStatus, setCadStatus] = useState('CAD-kernel starten…')
   const [cadError, setCadError] = useState('')
   const [selectedCadPart, setSelectedCadPart] = useState('right_shoulder_roll')
+  const [robotInfo, setRobotInfo] = useState(null)
+  const [jointAngles, setJointAngles] = useState({})
   const [selectedComponent, setSelectedComponent] = useState(projectState.robot.selectedComponent)
   const [query, setQuery] = useState('')
   const [notice, setNotice] = useState('')
@@ -161,7 +198,7 @@ export default function App() {
   const [renderMode, setRenderMode] = useState('realistic')
   const [rendering8K, setRendering8K] = useState(false)
   const [activeView, setActiveView] = useState('perspective')
-  const [assemblyMode, setAssemblyMode] = useState('detail')
+  const [assemblyMode, setAssemblyMode] = useState('full')
   const [command, setCommand] = useState('')
   const parts = projectState.bom
   useEffect(() => {
@@ -272,7 +309,7 @@ export default function App() {
       </div>
     </header>
     <nav className="mode-rail">{modeItems.map(([Icon,label], i)=><button key={label} className={i===0?'active':''}><Icon size={20}/><span>{label}</span></button>)}</nav>
-    <aside className="assembly panel"><div className="panel-title"><span>Assemblage</span><Plus size={15}/></div><div className="search"><Search size={14}/><input placeholder="Zoek componenten"/></div><AssemblyTree selected={selectedComponent} onSelect={selectComponent}/></aside>
+    <aside className="assembly panel"><div className="panel-title"><span>CAD-assemblage</span><span className="tree-count">73 links</span></div><div className="search"><Search size={14}/><input placeholder="Zoek CAD-onderdeel"/></div><AssemblyTree selected={selectedCadPart} onSelect={setSelectedCadPart}/></aside>
     <main className="viewport panel">
       <div className="view-tabs">{[['perspective','Perspectief'],['front','Voor'],['right','Rechts'],['top','Boven']].map(([id,label])=><button key={id} className={activeView===id?'active':''} onClick={()=>setView(id)}>{label}</button>)}</div>
       <div className="quality-switch"><button className={renderMode==='realistic'?'active':''} onClick={()=>setRenderMode('realistic')}>Realistisch</button><button className={renderMode==='cad'?'active':''} onClick={()=>setRenderMode('cad')}>CAD + Render</button></div>
@@ -284,8 +321,8 @@ export default function App() {
       </div>
       <div className="viewport-hud"><strong>{assemblyMode === 'detail' ? 'Schouder- en bovenlichaamdetail' : 'Complete Berkeley Lite V2 basisassemblage'}</strong><span>73 Onshape CAD-meshes · 72 DOF · RobStride-aandrijving · originele schaal</span></div>
       <Suspense fallback={<div className="viewport-loading">3D-model laden…</div>}>
-        <ProfessionalCadViewport ref={viewportRef} model={cadModel} selectedPartId={selectedCadPart} onSelectPart={setSelectedCadPart} renderMode={renderMode} assemblyMode={assemblyMode}
-          onModelReady={({ links, meshes }) => setCadStatus(`${links} echte links · ${meshes} CAD-meshes geladen`)} onModelError={(error) => setCadError(error.message)}/>
+        <ProfessionalCadViewport ref={viewportRef} model={cadModel} selectedPartId={selectedCadPart} jointAngles={jointAngles} onSelectPart={setSelectedCadPart} renderMode={renderMode} assemblyMode={assemblyMode}
+          onModelReady={(info) => { setRobotInfo(info); setCadStatus(`${info.links} echte links · ${info.meshes} CAD-meshes geladen`) }} onModelError={(error) => setCadError(error.message)}/>
       </Suspense>
       <div className="assembly-view-switch"><button className={assemblyMode === 'detail' ? 'active' : ''} onClick={() => setAssemblyMode('detail')}>Schouderdetail</button><button className={assemblyMode === 'full' ? 'active' : ''} onClick={() => setAssemblyMode('full')}>Volledige robot</button></div>
       <div className="command-bar"><Cpu size={17}/><input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>e.key==='Enter'&&executeCommand()} placeholder="Codex bestuurt deze assemblage — geef een engineeringopdracht"/><button onClick={executeCommand}>Door Codex uitvoeren</button></div>
@@ -293,7 +330,7 @@ export default function App() {
       <div className="axis"><b className="z">Z</b><b className="x">X</b><b className="y">Y</b></div>
       <div className="grid-label">Raster 100 mm</div>
     </main>
-    <CadInspector selectedPartId={selectedCadPart} parameters={cadParameters} status={cadStatus} error={cadError} renderMode={renderMode} onRenderMode={setRenderMode} onRender8K={render8K} rendering8K={rendering8K}
+    <CadInspector selectedPartId={selectedCadPart} robotInfo={robotInfo} jointAngles={jointAngles} onJointAngle={(id, angle) => setJointAngles(current => ({ ...current, [id]: angle }))} parameters={cadParameters} status={cadStatus} error={cadError} renderMode={renderMode} onRenderMode={setRenderMode} onRender8K={render8K} rendering8K={rendering8K}
       onParameter={(key, value) => setCadParameters(current => ({ ...current, [key]: Number(value) || 0 }))}/>
     <BomTable parts={parts} query={query} setQuery={setQuery}/>
     <footer className="statusbar"><span>Kernel: <strong>OpenCascade</strong></span><span>Eenheden: <strong>mm</strong></span><span>Schaal: <strong>1:1</strong></span><span className="path">/Munonoid/MNV-1/Complete-Humanoid-R1</span><span>Motor-CAD: <strong>leveranciers-CAD</strong></span><span className="ready"><i/> Live B-Rep actief</span></footer>

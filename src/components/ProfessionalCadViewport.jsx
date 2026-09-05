@@ -45,7 +45,7 @@ function CadAssembly({ model, selectedPartId, onSelectPart, renderMode }) {
   </group>
 }
 
-const ViewportScene = forwardRef(function ViewportScene({ model, selectedPartId, onSelectPart, renderMode, assemblyMode, onModelReady, onModelError }, ref) {
+const ViewportScene = forwardRef(function ViewportScene({ model, selectedPartId, jointAngles, onSelectPart, renderMode, assemblyMode, onModelReady, onModelError }, ref) {
   const { gl, camera, scene, size } = useThree()
   const controls = useRef(null)
 
@@ -107,7 +107,7 @@ const ViewportScene = forwardRef(function ViewportScene({ model, selectedPartId,
     <directionalLight position={[3.8, 5.5, 4.6]} intensity={4.6} color="#fff7ec" castShadow shadow-mapSize={[4096, 4096]} shadow-bias={-0.00015}/>
     <directionalLight position={[-3, 2.6, 2]} intensity={2.4} color="#80c5df"/>
     <spotLight position={[0, 4, -3]} intensity={4.2} angle={0.42} penumbra={0.82} color="#dcecff"/>
-    <BerkeleyHumanoid selectedPartId={selectedPartId} onSelectPart={onSelectPart} onReady={onModelReady} onError={onModelError}/>
+    <BerkeleyHumanoid selectedPartId={selectedPartId} jointAngles={jointAngles} onSelectPart={onSelectPart} onReady={onModelReady} onError={onModelError}/>
     <mesh position={[0, -0.006, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[12, 12]}/><meshStandardMaterial color="#0e1317" roughness={0.78} metalness={0.2}/>
     </mesh>
@@ -119,7 +119,7 @@ const ViewportScene = forwardRef(function ViewportScene({ model, selectedPartId,
   </>
 })
 
-const ProfessionalCadViewport = forwardRef(function ProfessionalCadViewport({ model, selectedPartId, onSelectPart, renderMode = 'realistic', assemblyMode = 'detail', onModelReady, onModelError }, ref) {
+const ProfessionalCadViewport = forwardRef(function ProfessionalCadViewport({ model, selectedPartId, jointAngles, onSelectPart, renderMode = 'realistic', assemblyMode = 'detail', onModelReady, onModelError }, ref) {
   const [webglAvailable] = useState(() => {
     try {
       const canvas = document.createElement('canvas')
@@ -139,7 +139,7 @@ const ProfessionalCadViewport = forwardRef(function ProfessionalCadViewport({ mo
 
   return <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping, outputColorSpace: SRGBColorSpace, shadowMap: { enabled: true, type: PCFSoftShadowMap } }} onCreated={({ gl }) => { gl.setClearColor(new Color('#0d1216'), 1); gl.toneMappingExposure = 1.08 }} onPointerMissed={() => onSelectPart(null)}>
     <color attach="background" args={['#0d1216']}/><fog attach="fog" args={['#0d1216', 4.5, 9]}/>
-    <ViewportScene ref={ref} model={model} selectedPartId={selectedPartId} onSelectPart={onSelectPart} renderMode={renderMode} assemblyMode={assemblyMode} onModelReady={onModelReady} onModelError={onModelError}/>
+    <ViewportScene ref={ref} model={model} selectedPartId={selectedPartId} jointAngles={jointAngles} onSelectPart={onSelectPart} renderMode={renderMode} assemblyMode={assemblyMode} onModelReady={onModelReady} onModelError={onModelError}/>
   </Canvas>
 })
 

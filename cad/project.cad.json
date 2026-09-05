@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "project": "Munonoid V0",
+  "units": "mm",
+  "cadKernel": "CadQuery/OpenCascade",
+  "releaseGate": "No envelope or unverified vendor part may be released for production",
+  "assemblies": [
+    {
+      "id": "right-shoulder-v0",
+      "name": "Right shoulder actuator module",
+      "status": "engineering-cad",
+      "parts": [
+        { "id": "SHO-PLATE-IN", "kind": "manufactured", "material": "Aluminium 7075-T6", "densityKgM3": 2810 },
+        { "id": "SHO-PLATE-OUT", "kind": "manufactured", "material": "Aluminium 7075-T6", "densityKgM3": 2810 },
+        { "id": "SHO-SHAFT", "kind": "manufactured", "material": "42CrMo4 steel", "densityKgM3": 7850 },
+        { "id": "SHO-BEARING", "kind": "envelope", "material": "Bearing steel", "densityKgM3": 7810, "requiredEvidence": ["manufacturer", "mpn", "supplierUrl", "stepFile", "datasheet"] },
+        { "id": "MOT-RS02", "kind": "verified-vendor", "material": "Supplier assembly", "massOverrideKg": 0.38, "manufacturer": "RobStride Dynamics", "mpn": "RS02", "stepSha256": "c988a3a398986fb6bc1453bf768d25c3198fad72c43af3483b7135d7e7a8f063" },
+        { "id": "SHO-CAPSTAN", "kind": "manufactured", "material": "Aluminium 7075-T6", "densityKgM3": 2810 }
+      ]
+    }
+  ]
+}

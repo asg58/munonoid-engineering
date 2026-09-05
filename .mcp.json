@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "munonoid-control": {
+      "cwd": ".",
+      "command": "node",
+      "args": [
+        "./mcp/server.mjs"
+      ]
+    }
+  }
+}

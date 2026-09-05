@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "projectId": "munonoid-v0",
+  "name": "Munonoid Engineering CAD",
+  "revision": 4,
+  "units": "mm",
+  "scale": "1:1",
+  "robot": {
+    "height": 1650,
+    "selectedComponent": "torso"
+  },
+  "transforms": {
+    "torso": { "position": { "x": 0, "y": 810, "z": 0 }, "rotation": { "roll": 0, "pitch": 0, "yaw": 0 } },
+    "head": { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "roll": 0, "pitch": 0, "yaw": 0 } },
+    "rightShoulder": { "position": { "x": 312, "y": 1428.5, "z": 210 }, "rotation": { "roll": 0, "pitch": 0, "yaw": 0 } },
+    "leftShoulder": { "position": { "x": -312, "y": 1428.5, "z": 210 }, "rotation": { "roll": 0, "pitch": 0, "yaw": 0 } },
+    "pelvis": { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "roll": 0, "pitch": 0, "yaw": 0 } },
+    "rightLeg": { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "roll": 0, "pitch": 0, "yaw": 0 } },
+    "leftLeg": { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "roll": 0, "pitch": 0, "yaw": 0 } },
+    "electronics": { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "roll": 0, "pitch": 0, "yaw": 0 } }
+  },
+  "bom": [
+    { "id": "MOT-RS04", "name": "RobStride RS04 · officiële STEP", "quantity": 8, "source": "RobStride fabrikantrepo", "sector": "Robotica", "status": "CAD-gecontroleerd", "mass": 11.36, "price": 0 },
+    { "id": "MOT-RS03", "name": "RobStride RS03 · officiële STEP", "quantity": 10, "source": "RobStride fabrikantrepo", "sector": "Robotica", "status": "CAD-gecontroleerd", "mass": 9.0, "price": 0 },
+    { "id": "MOT-RS02", "name": "RobStride RS02 · officiële STEP", "quantity": 4, "source": "RobStride fabrikantrepo", "sector": "Robotica", "status": "CAD-gecontroleerd", "mass": 1.52, "price": 0 },
+    { "id": "MOT-RS05", "name": "RobStride RS05 · officiële STEP", "quantity": 6, "source": "RobStride fabrikantrepo", "sector": "Robotica", "status": "CAD-gecontroleerd", "mass": 1.146, "price": 0 },
+    { "id": "FRM-MNV-001", "name": "MNV-1 aluminium/carbon frame-set", "quantity": 1, "source": "Munonoid engineering", "sector": "Constructie", "status": "concept", "mass": 12.8, "price": 0 },
+    { "id": "HAND-LEAP-V2", "name": "LEAP Hand V2 · open-source CAD", "quantity": 2, "source": "LEAP Hand / ROBOTIS", "sector": "Robotica", "status": "onderzocht", "mass": 1.0, "price": 0 },
+    { "id": "CMP-JETSON-ORIN-NX", "name": "NVIDIA Jetson Orin NX", "quantity": 1, "source": "NVIDIA", "sector": "AI/compute", "status": "voorlopig gekozen", "mass": 0.15, "price": 0 },
+    { "id": "BAT-48V-P45B-001", "name": "48 V tractiepack · Molicel P45B", "quantity": 1, "source": "Molicel / engineeringpack", "sector": "Energie", "status": "onderzocht", "mass": 5.5, "price": 0 },
+    { "id": "NET-CANHUB-001", "name": "RobStride CAN hub / power board", "quantity": 3, "source": "RobStride fabrikantrepo", "sector": "Elektronica", "status": "CAD-gecontroleerd", "mass": 0.45, "price": 0 },
+    { "id": "SEN-OAK-D-PRO", "name": "Luxonis OAK-D Pro vision", "quantity": 2, "source": "Luxonis", "sector": "Perceptie", "status": "voorlopig gekozen", "mass": 0.18, "price": 0 },
+    { "id": "ISO-4762-M6", "name": "ISO 4762 M6 bevestigingsset", "quantity": 96, "source": "Standaardonderdeel", "sector": "Bevestiging", "status": "onderzocht", "mass": 0.72, "price": 0 }
+  ],
+  "events": []
+}

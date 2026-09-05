@@ -1,0 +1,94 @@
+{
+  "kernel": "CadQuery 2.8.0 / OpenCascade",
+  "units": "mm",
+  "assembly": "Munonoid-right-shoulder-v0",
+  "parts": [
+    {
+      "id": "SHO-PLATE-IN",
+      "classification": "manufactured",
+      "material": "Aluminium 7075-T6",
+      "volumeMm3": 245786.816,
+      "massKg": 0.6907,
+      "boundingBoxMm": [
+        150.0,
+        170.0,
+        12.0
+      ],
+      "productionReady": true
+    },
+    {
+      "id": "SHO-BEARING",
+      "classification": "envelope",
+      "material": "Bearing steel",
+      "volumeMm3": 70371.675,
+      "massKg": 0.5496,
+      "boundingBoxMm": [
+        100.0,
+        100.0,
+        14.0
+      ],
+      "productionReady": false
+    },
+    {
+      "id": "MOT-RS02",
+      "classification": "verified-vendor",
+      "material": "Supplier assembly",
+      "volumeMm3": 182359.083,
+      "massKg": 0.38,
+      "boundingBoxMm": [
+        78.5,
+        78.5,
+        45.4
+      ],
+      "productionReady": true
+    },
+    {
+      "id": "SHO-CAPSTAN",
+      "classification": "manufactured",
+      "material": "Aluminium 7075-T6",
+      "volumeMm3": 112298.868,
+      "massKg": 0.3156,
+      "boundingBoxMm": [
+        72.0,
+        72.0,
+        42.0
+      ],
+      "productionReady": true
+    },
+    {
+      "id": "SHO-SHAFT",
+      "classification": "manufactured",
+      "material": "42CrMo4 steel",
+      "volumeMm3": 137268.749,
+      "massKg": 1.0776,
+      "boundingBoxMm": [
+        40.0,
+        40.0,
+        113.4
+      ],
+      "productionReady": true
+    },
+    {
+      "id": "SHO-PLATE-OUT",
+      "classification": "manufactured",
+      "material": "Aluminium 7075-T6",
+      "volumeMm3": 245786.816,
+      "massKg": 0.6907,
+      "boundingBoxMm": [
+        150.0,
+        170.0,
+        12.0
+      ],
+      "productionReady": true
+    }
+  ],
+  "totalMassKg": 3.7042,
+  "productionReady": false,
+  "blockedBy": [
+    "SHO-BEARING"
+  ],
+  "outputs": {
+    "step": "munonoid-right-shoulder-v0.step",
+    "glb": "munonoid-right-shoulder-v0.glb"
+  }
+}

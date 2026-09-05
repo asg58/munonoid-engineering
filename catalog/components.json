@@ -1,0 +1,112 @@
+[
+  {
+    "id": "MOT-RS04",
+    "manufacturer": "RobStride Dynamics",
+    "mpn": "RS04",
+    "category": "integrated-actuator",
+    "evidenceStatus": "verified",
+    "geometryStatus": "integrated-official-step",
+    "sources": { "officialRepository": "https://github.com/RobStride/Product_Information", "cad": "https://github.com/RobStride/Product_Information/blob/6ad12f50006273b7ea4eea88980f927d97c22f0d/Product%20Literature/RS04/RS04.stp", "revision": "6ad12f50006273b7ea4eea88980f927d97c22f0d", "sha256": "841f5deaa15575e98bdca3a6d0b69f4207c305f56f1743f0a7122a42366996b1" },
+    "specifications": { "voltageNominalV": 48, "ratedTorqueNm": 40, "peakTorqueNm": 120, "reductionRatio": 9, "massKg": 1.42, "encoder": "dual magnetic absolute", "control": ["CAN 2.0", "MIT", "position", "velocity", "current"] },
+    "releaseBlocks": ["Thermal test in Munonoid hip", "Static and dynamic load case", "Emergency-stop bench verification"]
+  },
+  {
+    "id": "MOT-RS03",
+    "manufacturer": "RobStride Dynamics",
+    "mpn": "RS03",
+    "category": "integrated-actuator",
+    "evidenceStatus": "verified",
+    "geometryStatus": "integrated-official-step",
+    "sources": { "officialRepository": "https://github.com/RobStride/Product_Information", "cad": "https://github.com/RobStride/Product_Information/blob/6ad12f50006273b7ea4eea88980f927d97c22f0d/Product%20Literature/RS03/RS03.stp", "revision": "6ad12f50006273b7ea4eea88980f927d97c22f0d", "sha256": "8eccaf6291e395d8622300396289df898ab18a1648193a5cd327cfbd2bf72500" },
+    "specifications": { "voltageNominalV": 48, "ratedTorqueNm": 21, "peakTorqueNm": 60, "reductionRatio": 9, "massKg": 0.9, "encoder": "dual magnetic absolute", "control": ["CAN 2.0", "MIT", "position", "velocity", "current"] },
+    "releaseBlocks": ["Thermal test in Munonoid shoulder/ankle", "Joint workspace and collision check"]
+  },
+  {
+    "id": "MOT-RS05",
+    "manufacturer": "RobStride Dynamics",
+    "mpn": "RS05",
+    "category": "integrated-actuator",
+    "evidenceStatus": "verified",
+    "geometryStatus": "integrated-official-step",
+    "sources": { "officialRepository": "https://github.com/RobStride/Product_Information", "cad": "https://github.com/RobStride/Product_Information/blob/6ad12f50006273b7ea4eea88980f927d97c22f0d/Product%20Literature/RS05/RS05.STEP", "revision": "6ad12f50006273b7ea4eea88980f927d97c22f0d", "sha256": "35a143d7e04d84eeda8664591e33626a1802f614a5b76ac29f465620dec81792" },
+    "specifications": { "voltageNominalV": 48, "ratedTorqueNm": 1.8, "peakTorqueNm": 5.5, "reductionRatio": 7.75, "massKg": 0.191, "encoder": "dual magnetic absolute", "control": ["CAN 2.0", "MIT", "position", "velocity", "current"] },
+    "releaseBlocks": ["Wrist and neck thermal test", "Cable bend-radius validation"]
+  },
+  {
+    "id": "MOT-RS02",
+    "manufacturer": "RobStride Dynamics",
+    "mpn": "RS02",
+    "category": "integrated-actuator",
+    "evidenceStatus": "verified",
+    "geometryStatus": "integrated-official-step",
+    "sources": {
+      "officialRepository": "https://github.com/RobStride/Product_Information",
+      "product": "https://robstride.com/products/robStride02",
+      "manual": "https://github.com/RobStride/Product_Information/blob/6ad12f50006273b7ea4eea88980f927d97c22f0d/Product%20Literature/RS02/RS02User%20Manual260713.pdf",
+      "cad": "https://github.com/RobStride/Product_Information/blob/6ad12f50006273b7ea4eea88980f927d97c22f0d/Product%20Literature/RS02/rs02.stp",
+      "revision": "6ad12f50006273b7ea4eea88980f927d97c22f0d",
+      "sha256": "c988a3a398986fb6bc1453bf768d25c3198fad72c43af3483b7135d7e7a8f063"
+    },
+    "specifications": {
+      "voltageNominalV": 48,
+      "voltageRangeV": [24, 60],
+      "ratedTorqueNm": 6,
+      "ratedTorqueCondition": "100 rpm with 260 x 280 mm aluminium heat sink; product overview dated 2026-07-13 lists 7 Nm",
+      "peakTorqueNm": 17,
+      "noLoadSpeedRpm": 410,
+      "reductionRatio": 7.75,
+      "massKg": 0.38,
+      "boundingBoxMm": [78.5, 78.5, 45.4],
+      "encoder": "dual magnetic, 14-bit absolute",
+      "control": ["CAN 2.0", "CANopen", "MIT", "current", "velocity", "position"]
+    },
+    "releaseBlocks": ["Thermal test in Munonoid torso", "Tendon force and capstan radius calculation", "Bench verification of emergency stop"]
+  },
+  {
+    "id": "MOT-DM-J4310P-2EC",
+    "manufacturer": "Shenzhen Damiao Technology",
+    "mpn": "DM-J4310P-2EC V1.1",
+    "category": "integrated-actuator",
+    "evidenceStatus": "verified",
+    "geometryStatus": "official-step-available",
+    "sources": {
+      "officialRepository": "https://gitee.com/kit-miao/dm-j4310-p-2-ec",
+      "manual": "https://gitee.com/kit-miao/dm-j4310-p-2-ec/tree/master/%E8%AF%B4%E6%98%8E%E4%B9%A6",
+      "cad": "https://gitee.com/kit-miao/dm-j4310-p-2-ec/tree/master/3D%E6%A8%A1%E5%9E%8B",
+      "revision": "4b1cf31c49e020e2ebaff8de6a42065e6be7a107",
+      "sha256": "0483db3f60cae5b41a441c766760493b18f6a1aa7164e6fcf76ddc1d66f5e08a"
+    },
+    "specifications": {
+      "voltageNominalV": 24,
+      "voltageRangeV": [24, 28],
+      "ratedTorqueNm": 3.5,
+      "peakTorqueNm": 12.5,
+      "ratedSpeedRpm": 120,
+      "reductionRatio": 10,
+      "massKg": 0.325,
+      "boundingBoxMm": [57, 49.05, 57],
+      "encoder": "dual magnetic, 16-bit absolute",
+      "control": ["CAN", "CAN FD", "MIT", "position-velocity", "velocity", "torque"]
+    },
+    "releaseBlocks": ["Import 34 MB supplier STEP into lightweight viewer", "Thermal test in Munonoid torso", "Tendon force and capstan radius calculation"]
+  },
+  {
+    "id": "JNT-SPIDER-001",
+    "manufacturer": "Munonoid",
+    "mpn": "Spider Shoulder R0",
+    "category": "three-axis-spherical-joint",
+    "evidenceStatus": "blocked",
+    "geometryStatus": "envelope",
+    "sources": {
+      "officialRepository": "https://munonoid-designer.info322892.chatgpt.site",
+      "revision": "internal-r0"
+    },
+    "specifications": {
+      "degreesOfFreedom": 3,
+      "tendonCount": 6,
+      "tendonPairs": 3,
+      "nominalEnvelopeMm": [100, 100, 100]
+    },
+    "releaseBlocks": ["Required angular workspace", "Radial and axial design loads", "Pretension and fatigue life", "Physical bearing architecture"]
+  }
+]

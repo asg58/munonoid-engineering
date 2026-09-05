@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://munonoid.local/schemas/component.schema.json",
+  "title": "Munonoid verified component",
+  "type": "object",
+  "required": ["id", "manufacturer", "mpn", "category", "evidenceStatus", "geometryStatus", "sources", "specifications"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+    "manufacturer": { "type": "string", "minLength": 2 },
+    "mpn": { "type": "string", "minLength": 2 },
+    "category": { "type": "string" },
+    "evidenceStatus": { "enum": ["verified", "partial", "blocked"] },
+    "geometryStatus": { "enum": ["integrated-official-step", "official-step-available", "drawing-only", "envelope"] },
+    "sources": {
+      "type": "object",
+      "required": ["officialRepository", "revision"],
+      "properties": {
+        "officialRepository": { "type": "string", "format": "uri" },
+        "product": { "type": "string", "format": "uri" },
+        "manual": { "type": "string", "format": "uri" },
+        "cad": { "type": "string", "format": "uri" },
+        "revision": { "type": "string", "minLength": 7 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "specifications": { "type": "object", "minProperties": 1 },
+    "releaseBlocks": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

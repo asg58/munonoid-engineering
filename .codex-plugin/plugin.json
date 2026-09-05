@@ -1,0 +1,23 @@
+{
+  "name": "munonoid-designer",
+  "version": "0.4.0",
+  "description": "Ontwerp en bestuur het digitale Munonoid-robotproject via veilige CLI- en MCP-opdrachten.",
+  "author": {
+    "name": "Mustafa Arslan"
+  },
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Munonoid Control",
+    "shortDescription": "Bestuur het Munonoid-ontwerp via AI.",
+    "longDescription": "Munonoid Control geeft ChatGPT en Codex veilige gereedschappen voor projectstatus, robotmaten, componenttransformaties, BOM-beheer en ontwerpvalidatie.",
+    "developerName": "Mustafa Arslan",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Controleer de huidige Munonoid-status.",
+      "Valideer het volledige robotontwerp.",
+      "Toon de Munonoid-onderdelen en BOM."
+    ],
+    "brandColor": "#12B9DF"
+  }
+}
